@@ -126,36 +126,52 @@ RGVBF Google Workspace account.
 2. In the sheet, go to **Extensions → Apps Script**.
 3. Delete everything in the code editor, and paste in the entire contents
    of `apps-script/Code.gs` from this project.
-4. Click the **Save** icon (or Ctrl+S).
-5. Click **Deploy → New deployment**.
+4. Pick a random secret string (anything unguessable — e.g. mash the
+   keyboard for 20+ characters, or use a password generator). Near the top
+   of the pasted code, find:
+   ```js
+   const SHARED_SECRET = "PASTE_YOUR_OWN_RANDOM_SECRET_HERE";
+   ```
+   and replace the placeholder with your chosen string, keeping the quotes.
+   **Why:** see the "Keeping random people out of your Sheet" note below —
+   this is what stops anyone who finds your Web App URL from writing junk
+   rows into it.
+5. Click the **Save** icon (or Ctrl+S).
+6. Click **Deploy → New deployment**.
    - Click the gear icon next to "Select type" → choose **Web app**.
    - Description: "RGVBF outreach endpoint" (or anything).
    - Execute as: **Me**.
    - Who has access: **Anyone**.
    - Click **Deploy**.
-6. The first time, Google will ask you to **authorize** the script — click
+7. The first time, Google will ask you to **authorize** the script — click
    through the consent screens (it may show an "unverified app" warning
    since it's your own private script; click **Advanced → Go to
    [project name] (unsafe)** — this is expected for personal/organization
    scripts you wrote yourself).
-7. Copy the **Web app URL** it gives you (looks like
+8. Copy the **Web app URL** it gives you (looks like
    `https://script.google.com/macros/s/XXXXXXX/exec`).
 
 ### Point the app at your Sheet
 
 1. Open `js/app.js` in your GitHub repo (click the file, then the pencil/edit icon).
-2. Find this line near the top:
+2. Find these two lines near the top:
    ```js
    const APPS_SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+   const APP_SHARED_SECRET = "PASTE_YOUR_OWN_RANDOM_SECRET_HERE";
    ```
-3. Replace the placeholder text with the URL you copied, keeping the quotes:
+3. Replace both placeholders, keeping the quotes: the URL you copied, and
+   the **exact same** secret string you set in `SHARED_SECRET` in Code.gs
+   (step 4 above — they must match character-for-character):
    ```js
    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/XXXXXXX/exec";
+   const APP_SHARED_SECRET = "your-random-string-here";
    ```
 4. Commit the change directly on GitHub.
-5. Give it a minute, then reload the app on your phone (you may need to
+5. Bump the cache version in `service-worker.js` too (see "Updating the
+   app later" below) so phones pick up the change quickly.
+6. Give it a minute, then reload the app on your phone (you may need to
    uninstall/reinstall or clear the site's cache once, since the service
-   worker caches the old file — see "Updating the app" below).
+   worker caches the old file).
 
 Any sign-up saved from now on will sync to that Google Sheet whenever the
 device is online.
@@ -163,6 +179,28 @@ device is online.
 > If your Workspace admin has locked down Apps Script or "Anyone" access,
 > you may need IT to approve this once — it's a one-time setup, not a
 > per-use approval.
+
+### Keeping random people out of your Sheet
+
+Because volunteers need to submit sign-ups from personal phones with no
+Google login, the Web App has to allow "Anyone" — there's no way to check
+who's submitting. That's fine as long as the URL stays reasonably private,
+but if your GitHub repo is **public** (required for free GitHub Pages
+hosting), anyone can open `js/app.js` and read the URL straight out of the
+code.
+
+The `secret` string above is the safeguard: every submission from the app
+includes it, and `Code.gs` silently ignores any request where it's missing
+or wrong. So even though the URL is technically visible in a public repo,
+a bot or random visitor hitting it directly without the matching secret
+won't be able to write anything to your Sheet.
+
+This isn't unbreakable — someone who deliberately reads through your
+public repo's code will find the secret sitting right next to the URL. It
+stops opportunistic/automated abuse, not a determined targeted attacker.
+If you ever need stronger protection (e.g. this Sheet starts holding more
+sensitive data), the real fix is keeping the repo private, which requires
+GitHub Pro (or another host that supports private static sites).
 
 ---
 

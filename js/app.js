@@ -10,6 +10,14 @@
  */
 const APPS_SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 
+/**
+ * >>> SET THIS to the SAME random string you put in SHARED_SECRET at the
+ *     top of apps-script/Code.gs. Anyone who has both this URL and this
+ *     secret can write to the Sheet, so treat it like a lightweight API
+ *     key: don't post it anywhere public outside this file. <<<
+ */
+const APP_SHARED_SECRET = "PASTE_YOUR_OWN_RANDOM_SECRET_HERE";
+
 const LAST_EVENT_KEY = "rgvbf_last_event_location";
 
 const form = document.getElementById("contactForm");
@@ -343,7 +351,7 @@ async function syncPending() {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(record),
+        body: JSON.stringify({ ...record, secret: APP_SHARED_SECRET }),
       });
 
       await RgvbfDB.markSynced(record.id);
