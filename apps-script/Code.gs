@@ -38,7 +38,7 @@ const SHEET_NAME = "Sign-Ups"; // change if you want the tab named differently
 // Must exactly match APP_SHARED_SECRET in js/app.js. Pick your own random
 // string (letters/numbers, 20+ characters is plenty) -- do NOT leave this
 // as the placeholder.
-const SHARED_SECRET = "e6PEquFDHUXu";
+const SHARED_SECRET = "PASTE_YOUR_OWN_RANDOM_SECRET_HERE";
 
 function doPost(e) {
   try {

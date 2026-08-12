@@ -8,8 +8,7 @@
  * >>> SET THIS to the Web App URL you get after deploying the Apps Script
  *     from the apps-script/Code.gs file in this project (see README.md). <<<
  */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3pG5mxe-IfghuQ15IrOTcbjtqKfz6RuYUK94JKduQi6n1yTaUmr56Yw/exec";
-
+const APPS_SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 
 /**
  * >>> SET THIS to the SAME random string you put in SHARED_SECRET at the
@@ -17,7 +16,7 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3
  *     secret can write to the Sheet, so treat it like a lightweight API
  *     key: don't post it anywhere public outside this file. <<<
  */
-const APP_SHARED_SECRET = "e6PEquFDHUXu";
+const APP_SHARED_SECRET = "PASTE_YOUR_OWN_RANDOM_SECRET_HERE";
 
 const LAST_EVENT_KEY = "rgvbf_last_event_location";
 
@@ -350,36 +349,64 @@ async function syncPending() {
   syncing = true;
   syncBtnLabel.textContent = "Syncing…";
   let successCount = 0;
+  let failed = false;
 
   for (const record of unsynced) {
-    try {
-      // Two deliberate choices here to work reliably with Google Apps Script:
-      //  1. Content-Type "text/plain" (not "application/json") keeps this a
-      //     "simple request" so the browser doesn't send a CORS preflight
-      //     (an OPTIONS request) first -- Apps Script Web Apps don't handle
-      //     those.
-      //  2. mode: "no-cors" means we fire the request and don't try to read
-      //     the response back. Apps Script's own response headers vary, and
-      //     if the browser can't read them it normally *fails the whole
-      //     request* even though the row was already written to the Sheet
-      //     -- which would make the app retry forever and create duplicate
-      //     rows. Since Code.gs always returns HTTP 200 for any request it
-      //     receives, "the request didn't throw" is a reliable enough
-      //     signal that it was delivered.
-      await fetch(APPS_SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ ...record, secret: APP_SHARED_SECRET }),
-      });
+    const payload = JSON.stringify({ ...record, secret: APP_SHARED_SECRET });
+    let delivered = false;
 
-      await RgvbfDB.markSynced(record.id);
-      successCount++;
+    try {
+      // Prefer navigator.sendBeacon: it's built specifically for "fire this
+      // request and don't wait for a response" delivery, and -- unlike
+      // fetch() -- browsers keep it alive even if the tab/app gets
+      // backgrounded or the screen locks right after tapping Sync (a very
+      // realistic scenario for a volunteer at a table). This is the main
+      // fix for syncing that silently never completes on some phones
+      // (observed on iPhone) while working fine on desktop.
+      if (navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: "text/plain;charset=utf-8" });
+        delivered = navigator.sendBeacon(APPS_SCRIPT_URL, blob);
+      }
+
+      if (!delivered) {
+        // Fallback for browsers without sendBeacon, or if it couldn't be
+        // queued (e.g. over its small size limit -- shouldn't happen for
+        // one record, but just in case).
+        //
+        // Two deliberate choices here to work reliably with Google Apps
+        // Script:
+        //  1. Content-Type "text/plain" (not "application/json") keeps this
+        //     a "simple request" so the browser doesn't send a CORS
+        //     preflight (an OPTIONS request) first -- Apps Script Web Apps
+        //     don't handle those.
+        //  2. mode: "no-cors" means we fire the request and don't try to
+        //     read the response back. Apps Script's own response headers
+        //     vary, and if the browser can't read them it normally *fails
+        //     the whole request* even though the row was already written to
+        //     the Sheet -- which would make the app retry forever and
+        //     create duplicate rows.
+        await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: payload,
+        });
+        delivered = true;
+      }
     } catch (err) {
-      // Genuine network failure (e.g. connection dropped mid-sync).
-      // Stop here; we'll retry on the next "online" event or manual tap.
+      delivered = false;
+    }
+
+    if (!delivered) {
+      // Genuine failure to even send the request. Stop here; we'll retry
+      // automatically (see the periodic retry below) or on the next manual
+      // tap / "online" event.
+      failed = true;
       break;
     }
+
+    await RgvbfDB.markSynced(record.id);
+    successCount++;
   }
 
   syncing = false;
@@ -389,6 +416,11 @@ async function syncPending() {
 
   if (successCount > 0) {
     showToast(`Synced ${successCount} sign-up${successCount === 1 ? "" : "s"} to the Google Sheet.`);
+  } else if (failed) {
+    // Previously this failed completely silently, which left people staring
+    // at a pending count that never moved with no idea why. Now at least
+    // say something -- the automatic retry (below) will keep trying.
+    showToast("Couldn't sync right now. Will keep trying automatically.");
   }
 }
 
@@ -408,6 +440,25 @@ if ("serviceWorker" in navigator) {
     });
   });
 }
+
+// ---------- periodic auto-retry ----------
+// Sync isn't guaranteed to succeed on the first try on every device/network
+// (mobile connections drop, phones get backgrounded mid-request, etc.), and
+// a volunteer at a table won't necessarily notice a stuck "pending" count or
+// remember to keep tapping Sync. Quietly retry every 45 seconds whenever the
+// device is online and something is still waiting.
+setInterval(() => {
+  if (navigator.onLine) syncPending();
+}, 45000);
+
+// Also retry whenever the app comes back into view/foreground (e.g. a
+// volunteer switches back to it after using another app) or the screen
+// wakes up, since that's often exactly when a phone regains connectivity.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && navigator.onLine) {
+    syncPending();
+  }
+});
 
 // ---------- init ----------
 refreshStatusBar();
