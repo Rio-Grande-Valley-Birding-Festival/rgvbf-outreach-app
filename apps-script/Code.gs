@@ -58,7 +58,8 @@ function doPost(e) {
       new Date(),               // when the server received it
       data.firstName || "",
       data.lastName || "",
-      data.phone || "",
+      data.country || "",
+      data.state || "",
       data.email || "",
       data.eventLocation || "",
       data.createdAt || "",     // when it was actually collected on the device
@@ -84,7 +85,8 @@ function getOrCreateSheet() {
       "Received At",
       "First Name",
       "Last Name",
-      "Phone",
+      "Country",
+      "State",
       "Email",
       "Location / Event",
       "Collected On Device At",

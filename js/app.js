@@ -8,7 +8,7 @@
  * >>> SET THIS to the Web App URL you get after deploying the Apps Script
  *     from the apps-script/Code.gs file in this project (see README.md). <<<
  */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3pG5mxe-IfghuQ15IrOTcbjtqKfz6RuYUK94JKduQi6n1yTaUmr56Yw/exec";
+const APPS_SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 
 /**
  * >>> SET THIS to the SAME random string you put in SHARED_SECRET at the
@@ -16,7 +16,7 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3
  *     secret can write to the Sheet, so treat it like a lightweight API
  *     key: don't post it anywhere public outside this file. <<<
  */
-const APP_SHARED_SECRET = "e6PEquFDHUXu";
+const APP_SHARED_SECRET = "PASTE_YOUR_OWN_RANDOM_SECRET_HERE";
 
 const LAST_EVENT_KEY = "rgvbf_last_event_location";
 
@@ -24,7 +24,9 @@ const form = document.getElementById("contactForm");
 const fields = {
   firstName: document.getElementById("firstName"),
   lastName: document.getElementById("lastName"),
-  phone: document.getElementById("phone"),
+  country: document.getElementById("country"),
+  state: document.getElementById("state"),
+  stateOther: document.getElementById("stateOther"),
   email: document.getElementById("email"),
   eventLocation: document.getElementById("eventLocation"),
 };
@@ -54,22 +56,30 @@ function rememberEvent(value) {
 }
 loadLastEvent();
 
-// ---------- validation ----------
-function setFieldValid(input, valid) {
-  const wrapper = input.closest("label")?.parentElement || input.parentElement;
-  const group = input.parentElement.parentElement || input.parentElement;
-  input.parentElement.classList.toggle("invalid", !valid);
+// ---------- country / state ----------
+// The State dropdown only makes sense for US addresses. For any other
+// country, swap it for a free-text "State / Province / Region" box instead,
+// since "state" isn't a universal concept (provinces, regions, etc.).
+function isUnitedStates() {
+  return fields.country.value === "United States";
+}
+function updateStateFieldVisibility() {
+  const usa = isUnitedStates();
+  fields.state.style.display = usa ? "" : "none";
+  fields.stateOther.style.display = usa ? "none" : "";
+}
+fields.country.addEventListener("change", updateStateFieldVisibility);
+updateStateFieldVisibility();
+
+function currentStateValue() {
+  return isUnitedStates() ? fields.state.value : fields.stateOther.value.trim();
 }
 
+// ---------- validation ----------
 function isValidEmail(value) {
   // Email is required, so an empty value is invalid here.
   if (!value || !value.trim()) return false;
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-}
-function isValidPhone(value) {
-  if (!value) return true; // optional field
-  const digits = value.replace(/\D/g, "");
-  return digits.length >= 7 && digits.length <= 15;
 }
 
 function validateForm() {
@@ -78,13 +88,15 @@ function validateForm() {
   const checks = [
     [fields.firstName, fields.firstName.value.trim().length > 0],
     [fields.lastName, fields.lastName.value.trim().length > 0],
+    [fields.country, fields.country.value.trim().length > 0],
+    [isUnitedStates() ? fields.state : fields.stateOther, currentStateValue().length > 0],
     [fields.eventLocation, fields.eventLocation.value.trim().length > 0],
-    [fields.phone, isValidPhone(fields.phone.value)],
     [fields.email, isValidEmail(fields.email.value)],
   ];
 
   checks.forEach(([input, ok]) => {
-    input.parentElement.classList.toggle("invalid", !ok);
+    const fieldWrapper = input.closest(".field") || input.parentElement;
+    fieldWrapper.classList.toggle("invalid", !ok);
     if (!ok) valid = false;
   });
 
@@ -147,7 +159,8 @@ function recordsToCsv(records) {
   const headers = [
     "First Name",
     "Last Name",
-    "Phone",
+    "Country",
+    "State",
     "Email",
     "Location / Event",
     "Collected On Device At",
@@ -157,7 +170,8 @@ function recordsToCsv(records) {
   const rows = records.map((r) => [
     r.firstName,
     r.lastName,
-    r.phone,
+    r.country,
+    r.state,
     r.email,
     r.eventLocation,
     r.createdAt,
@@ -285,7 +299,8 @@ form.addEventListener("submit", async (e) => {
   const record = {
     firstName: fields.firstName.value.trim(),
     lastName: fields.lastName.value.trim(),
-    phone: fields.phone.value.trim(),
+    country: fields.country.value,
+    state: currentStateValue(),
     email: fields.email.value.trim(),
     eventLocation: fields.eventLocation.value.trim(),
   };
@@ -299,7 +314,10 @@ form.addEventListener("submit", async (e) => {
     // Reset only the personal fields; keep the event/location as-is.
     fields.firstName.value = "";
     fields.lastName.value = "";
-    fields.phone.value = "";
+    fields.country.value = "United States";
+    fields.state.value = "";
+    fields.stateOther.value = "";
+    updateStateFieldVisibility();
     fields.email.value = "";
     fields.firstName.focus();
 

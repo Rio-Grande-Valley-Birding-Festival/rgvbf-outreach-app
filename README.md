@@ -1,9 +1,9 @@
 # RGVBF Outreach Sign-Up App
 
 A simple, free, phone/tablet-friendly app for collecting contact sign-ups
-(First name, Last name, Phone, Email, Location/Event) at events. It works
-completely offline and syncs to a Google Sheet once the device has internet
-again.
+(First name, Last name, Country, State, Email, Location/Event) at events. It
+works completely offline and syncs to a Google Sheet once the device has
+internet again.
 
 This is a **Progressive Web App (PWA)** — a website that installs on a phone
 or tablet like a real app (icon on the home screen, opens full-screen, works
@@ -27,8 +27,13 @@ delays. Updating it is just updating files on GitHub.
    you're staffing one table all day you don't retype it for every person —
    it stays as the default until you change it, including the next time the
    app is opened.
-6. First name, last name, email, and location/event are required; phone is
-   optional.
+6. First name, last name, email, location/event, country, and state are all
+   required.
+7. **Country** defaults to United States (with Mexico right below it, for
+   quick access at border-area events). If it's set to United States, a
+   **State** dropdown appears (all 50 states + DC). For any other country,
+   that box turns into a free-text **State / Province / Region** field
+   instead, since "state" isn't how every country organizes itself.
 
 ### Managing what's stored on a device
 
@@ -179,6 +184,20 @@ device is online.
 > If your Workspace admin has locked down Apps Script or "Anyone" access,
 > you may need IT to approve this once — it's a one-time setup, not a
 > per-use approval.
+
+> **If you already have a live "Sign-Ups" tab with a "Phone" column from an
+> earlier version of this app:** the phone number field was replaced with
+> Country and State fields. New rows will now write into columns D and E as
+> Country and State — but your Sheet's existing header row still says
+> "Phone" in column D. Before your next sync, open the Sheet and do this
+> once: rename the column D header from "Phone" to "Country", then
+> right-click the column D letter and choose "Insert 1 column right" and
+> label the new column E "State" (this automatically shifts Email and
+> everything after it one column over, matching the code). Old rows keep
+> whatever phone numbers were already collected — nothing is deleted —
+> they just won't line up with the new headers going forward, so you may
+> want to move that historical data to a separate "Archive" tab if you
+> want to keep it organized.
 
 ### Keeping random people out of your Sheet
 
