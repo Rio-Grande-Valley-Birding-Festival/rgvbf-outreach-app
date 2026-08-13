@@ -24,11 +24,10 @@ const form = document.getElementById("contactForm");
 const fields = {
   firstName: document.getElementById("firstName"),
   lastName: document.getElementById("lastName"),
+  email: document.getElementById("email"),
   country: document.getElementById("country"),
   state: document.getElementById("state"),
   stateOther: document.getElementById("stateOther"),
-  email: document.getElementById("email"),
-  eventLocation: document.getElementById("eventLocation"),
 };
 const statusBar = document.getElementById("statusBar");
 const statusText = document.getElementById("statusText");
@@ -41,38 +40,64 @@ const dataSummaryEl = document.getElementById("dataSummary");
 const exportCsvBtn = document.getElementById("exportCsvBtn");
 const clearSyncedBtn = document.getElementById("clearSyncedBtn");
 const clearAllBtn = document.getElementById("clearAllBtn");
+const eventNameDisplay = document.getElementById("eventNameDisplay");
+const changeEventBtn = document.getElementById("changeEventBtn");
 
-// ---------- "remember the last event/location" ----------
-// Pre-fill the Location/Event field with whatever was used last time,
-// so a volunteer working one table/event all day doesn't retype it for
-// every single sign-up. It stays as the default the NEXT time the app
-// is launched too, until someone types a different value.
+// ---------- Event / Location (admin-set, not part of the volunteer form) ----------
+// This used to be a field every volunteer filled in on every sign-up. Now
+// it's set once by whoever's setting up the device before an event, via the
+// small "Change" link, and every sign-up on this device silently uses that
+// same value until someone changes it again -- one less thing to type (or
+// get wrong) per person signed up.
+let currentEventLocation = "";
+
+function refreshEventDisplay() {
+  eventNameDisplay.textContent = currentEventLocation || "Not set — tap Change";
+}
 function loadLastEvent() {
-  const saved = localStorage.getItem(LAST_EVENT_KEY);
-  if (saved) fields.eventLocation.value = saved;
+  currentEventLocation = (localStorage.getItem(LAST_EVENT_KEY) || "").trim();
+  refreshEventDisplay();
 }
 function rememberEvent(value) {
-  localStorage.setItem(LAST_EVENT_KEY, value.trim());
+  currentEventLocation = value.trim();
+  localStorage.setItem(LAST_EVENT_KEY, currentEventLocation);
+  refreshEventDisplay();
 }
 loadLastEvent();
 
-// ---------- country / state ----------
-// The State dropdown only makes sense for US addresses. For any other
-// country, swap it for a free-text "State / Province / Region" box instead,
-// since "state" isn't a universal concept (provinces, regions, etc.).
-function isUnitedStates() {
-  return fields.country.value === "United States";
+changeEventBtn.addEventListener("click", () => {
+  const next = window.prompt(
+    "Event / Location name for sign-ups collected on this device:",
+    currentEventLocation
+  );
+  if (next === null) return; // cancelled
+  if (!next.trim()) {
+    showToast("Event/Location can't be blank.");
+    return;
+  }
+  rememberEvent(next);
+  showToast(`Now collecting for: ${currentEventLocation}`);
+});
+
+// ---------- country / state (both optional) ----------
+// The State dropdown only makes sense for US (or unspecified) addresses.
+// For any other explicitly-chosen country, swap it for a free-text
+// "State / Province / Region" box instead, since "state" isn't a universal
+// concept. Neither field is required -- someone can leave both on "Prefer
+// not to say" and submit just fine.
+function isUnitedStatesOrUnset() {
+  return fields.country.value === "United States" || fields.country.value === "";
 }
 function updateStateFieldVisibility() {
-  const usa = isUnitedStates();
-  fields.state.style.display = usa ? "" : "none";
-  fields.stateOther.style.display = usa ? "none" : "";
+  const showStateDropdown = isUnitedStatesOrUnset();
+  fields.state.style.display = showStateDropdown ? "" : "none";
+  fields.stateOther.style.display = showStateDropdown ? "none" : "";
 }
 fields.country.addEventListener("change", updateStateFieldVisibility);
 updateStateFieldVisibility();
 
 function currentStateValue() {
-  return isUnitedStates() ? fields.state.value : fields.stateOther.value.trim();
+  return isUnitedStatesOrUnset() ? fields.state.value : fields.stateOther.value.trim();
 }
 
 // ---------- validation ----------
@@ -88,9 +113,6 @@ function validateForm() {
   const checks = [
     [fields.firstName, fields.firstName.value.trim().length > 0],
     [fields.lastName, fields.lastName.value.trim().length > 0],
-    [fields.country, fields.country.value.trim().length > 0],
-    [isUnitedStates() ? fields.state : fields.stateOther, currentStateValue().length > 0],
-    [fields.eventLocation, fields.eventLocation.value.trim().length > 0],
     [fields.email, isValidEmail(fields.email.value)],
   ];
 
@@ -159,22 +181,22 @@ function recordsToCsv(records) {
   const headers = [
     "First Name",
     "Last Name",
-    "Country",
-    "State",
     "Email",
     "Location / Event",
     "Collected On Device At",
+    "Country",
+    "State",
     "Synced To Sheet",
     "Synced At",
   ];
   const rows = records.map((r) => [
     r.firstName,
     r.lastName,
-    r.country,
-    r.state,
     r.email,
     r.eventLocation,
     r.createdAt,
+    r.country || "",
+    r.state || "",
     r.synced ? "Yes" : "No",
     r.syncedAt || "",
   ]);
@@ -289,6 +311,11 @@ clearAllBtn.addEventListener("click", async () => {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  if (!currentEventLocation) {
+    showToast('Set the Event/Location first — tap "Change" above.');
+    return;
+  }
+
   if (!validateForm()) {
     showToast("Please fix the highlighted fields.");
     return;
@@ -299,26 +326,26 @@ form.addEventListener("submit", async (e) => {
   const record = {
     firstName: fields.firstName.value.trim(),
     lastName: fields.lastName.value.trim(),
+    email: fields.email.value.trim(),
     country: fields.country.value,
     state: currentStateValue(),
-    email: fields.email.value.trim(),
-    eventLocation: fields.eventLocation.value.trim(),
+    eventLocation: currentEventLocation,
   };
 
   try {
     await RgvbfDB.addContact(record);
-    rememberEvent(record.eventLocation);
 
     showToast(`Saved ${record.firstName} ${record.lastName}. Ready for the next person!`);
 
-    // Reset only the personal fields; keep the event/location as-is.
+    // Reset the personal + optional fields; the event/location isn't a form
+    // field anymore, so it's untouched here.
     fields.firstName.value = "";
     fields.lastName.value = "";
-    fields.country.value = "United States";
+    fields.email.value = "";
+    fields.country.value = "";
     fields.state.value = "";
     fields.stateOther.value = "";
     updateStateFieldVisibility();
-    fields.email.value = "";
     fields.firstName.focus();
 
     await refreshPendingPill();

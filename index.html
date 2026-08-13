@@ -54,6 +54,39 @@
 
   main { max-width: 480px; margin: 0 auto; padding: 16px; }
 
+  .privacy-notice {
+    font-size: 0.76rem;
+    line-height: 1.4;
+    color: var(--muted);
+    background: #eef2ee;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin: 0 0 14px;
+  }
+
+  #eventBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: #fff;
+    border: 1px solid #e0e4e0;
+  }
+  #eventBar strong { font-weight: 700; color: var(--green); }
+  #eventBar button {
+    background: #fff;
+    color: var(--green);
+    border: 1px solid var(--green);
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
   #statusBar {
     display: flex;
     align-items: center;
@@ -110,10 +143,8 @@
     padding-right: 38px;
   }
   input:focus, select:focus { outline: 2px solid var(--green); border-color: var(--green); }
+  .optional-hint { font-size: 0.72rem; color: var(--muted); font-weight: 500; }
   .state-row { margin-top: 6px; }
-
-  .event-row { display: flex; gap: 8px; align-items: flex-end; }
-  .event-row input { flex: 1; }
 
   button {
     font-size: 1rem;
@@ -226,9 +257,19 @@
 
 <main>
 
+  <p id="privacyNotice" class="privacy-notice">
+    This information is collected for RGVBF's internal outreach records only.
+    It is never shared or sold.
+  </p>
+
   <div id="statusBar" class="online">
     <span><span class="dot"></span><span id="statusText">Online</span></span>
     <button id="syncBtn" type="button"><span id="syncBtnLabel">Sync now</span><span id="pendingPill" class="count-pill" style="display:none">0</span></button>
+  </div>
+
+  <div id="eventBar">
+    <span>Event: <strong id="eventNameDisplay">&mdash;</strong></span>
+    <button id="changeEventBtn" type="button">Change</button>
   </div>
 
   <div class="card">
@@ -236,20 +277,27 @@
 
       <div class="field">
       <label class="required" for="firstName">First name</label>
-      <input type="text" id="firstName" name="firstName" autocomplete="given-name" required />
+      <input type="text" id="firstName" name="firstName" autocomplete="off" autocorrect="off" spellcheck="false" required />
       <div class="field-error">First name is required.</div>
       </div>
 
       <div class="field">
       <label class="required" for="lastName">Last name</label>
-      <input type="text" id="lastName" name="lastName" autocomplete="family-name" required />
+      <input type="text" id="lastName" name="lastName" autocomplete="off" autocorrect="off" spellcheck="false" required />
       <div class="field-error">Last name is required.</div>
       </div>
 
       <div class="field">
-      <label class="required" for="country">Country</label>
-      <select id="country" name="country" required>
-        <option value="United States" selected>United States</option>
+      <label class="required" for="email">Email</label>
+      <input type="email" id="email" name="email" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="name@example.com" required />
+      <div class="field-error">Email is required — enter a valid address.</div>
+      </div>
+
+      <div class="field">
+      <label for="country">Country <span class="optional-hint">(optional)</span></label>
+      <select id="country" name="country" autocomplete="off">
+        <option value="" selected>Prefer not to say</option>
+        <option value="United States">United States</option>
         <option value="Mexico">Mexico</option>
         <option disabled>──────────</option>
         <option value="Afghanistan">Afghanistan</option>
@@ -449,14 +497,13 @@
         <option value="Zimbabwe">Zimbabwe</option>
         <option value="Other / Not listed">Other / Not listed</option>
       </select>
-      <div class="field-error">Country is required.</div>
       </div>
 
       <div class="field">
-      <label class="required" for="state">State</label>
+      <label for="state">State <span class="optional-hint">(optional)</span></label>
       <div class="state-row">
-        <select id="state" name="state">
-          <option value="" disabled selected>Select a state</option>
+        <select id="state" name="state" autocomplete="off">
+          <option value="" selected>Prefer not to say</option>
           <option value="Texas">Texas</option>
           <option disabled>──────────</option>
           <option value="Alabama">Alabama</option>
@@ -511,25 +558,7 @@
           <option value="Wyoming">Wyoming</option>
           <option value="Other U.S. territory">Other U.S. territory</option>
         </select>
-        <input type="text" id="stateOther" name="stateOther" placeholder="State / Province / Region" style="display:none;" />
-      </div>
-      <div class="field-error">State / Province is required.</div>
-      </div>
-
-      <div class="field">
-      <label class="required" for="email">Email</label>
-      <input type="email" id="email" name="email" autocomplete="email" placeholder="name@example.com" required />
-      <div class="field-error">Email is required — enter a valid address.</div>
-      </div>
-
-      <div class="field">
-      <label class="required" for="eventLocation">Location / Event</label>
-      <div class="event-row">
-        <input type="text" id="eventLocation" name="eventLocation" required placeholder="e.g. Harlingen Back-to-School Fair" />
-      </div>
-      <div class="field-error">Location / event is required.</div>
-      <div style="font-size:0.75rem;color:var(--muted);margin-top:6px;">
-        This stays the same for every sign-up until you change it &mdash; handy for working one event/table all day.
+        <input type="text" id="stateOther" name="stateOther" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="State / Province / Region" style="display:none;" />
       </div>
       </div>
 

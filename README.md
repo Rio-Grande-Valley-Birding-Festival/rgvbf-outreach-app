@@ -1,7 +1,7 @@
 # RGVBF Outreach Sign-Up App
 
 A simple, free, phone/tablet-friendly app for collecting contact sign-ups
-(First name, Last name, Country, State, Email, Location/Event) at events. It
+(First name, Last name, Email — plus optional Country/State) at events. It
 works completely offline and syncs to a Google Sheet once the device has
 internet again.
 
@@ -14,26 +14,41 @@ delays. Updating it is just updating files on GitHub.
 
 ## How it works (plain language)
 
-1. A volunteer opens the app on a phone/tablet (it can be pinned to the home
-   screen like any app).
-2. They type in a person's info and tap **Save sign-up**. This is saved
-   *instantly to the device itself* — it never waits on the internet.
-3. If there's no signal, the entry just sits on the device, safely stored,
+1. Before an event, someone sets up the device: opens the app and taps the
+   **Change** link next to "Event:" near the top, and types in the event or
+   location name once (see "Setting the event before each event" below).
+2. From then on, anyone — staff, volunteers, whoever's talking to people —
+   can hand the phone/tablet around and just fill in **First name, Last
+   name, Email**, then tap **Save sign-up**. Those three are required,
+   deliberately short, since people are often lukewarm about signing up in
+   the first place and every extra required box is one more reason to say
+   no. **Country** and **State** are also on the form but marked
+   "(optional)" — no asterisk, nothing blocks submission if they're left on
+   "Prefer not to say." If Country is set to something other than United
+   States (or left unset), the State box automatically turns into a
+   free-text "State / Province / Region" field instead of the dropdown,
+   since "state" isn't how every country organizes itself.
+3. Each save is *instant, to the device itself* — it never waits on the
+   internet.
+4. If there's no signal, the entry just sits on the device, safely stored,
    with a "pending" counter showing how many are waiting.
-4. Once the device has Wi-Fi or cell data again, the app automatically (or
+5. Once the device has Wi-Fi or cell data again, the app automatically (or
    you can tap **Sync now**) sends every pending entry to a Google Sheet
    that everyone at RGVBF can see.
-5. The **Location / Event** field remembers what you typed last, so if
-   you're staffing one table all day you don't retype it for every person —
-   it stays as the default until you change it, including the next time the
-   app is opened.
-6. First name, last name, email, location/event, country, and state are all
-   required.
-7. **Country** defaults to United States (with Mexico right below it, for
-   quick access at border-area events). If it's set to United States, a
-   **State** dropdown appears (all 50 states + DC). For any other country,
-   that box turns into a free-text **State / Province / Region** field
-   instead, since "state" isn't how every country organizes itself.
+6. A short notice at the top of the app tells people their info is for
+   RGVBF's internal records only and isn't shared or sold.
+
+### Setting the event before each event
+
+The Location/Event value isn't part of the sign-up form anymore — it's set
+once per device via the **"Event: ___ · Change"** line near the top, so
+whoever's collecting sign-ups doesn't see it or have to think about it at
+all. Tap **Change**, type the event/location name in the prompt that
+appears, and it's saved on that device and silently attached to every
+sign-up from then on — including the next time the app is opened, until
+someone changes it again. If it's never been set on a device, the app will
+refuse to save a sign-up and remind you to tap Change first, so entries
+never end up with a blank/unknown location.
 
 ### Managing what's stored on a device
 
@@ -185,19 +200,20 @@ device is online.
 > you may need IT to approve this once — it's a one-time setup, not a
 > per-use approval.
 
-> **If you already have a live "Sign-Ups" tab with a "Phone" column from an
-> earlier version of this app:** the phone number field was replaced with
-> Country and State fields. New rows will now write into columns D and E as
-> Country and State — but your Sheet's existing header row still says
-> "Phone" in column D. Before your next sync, open the Sheet and do this
-> once: rename the column D header from "Phone" to "Country", then
-> right-click the column D letter and choose "Insert 1 column right" and
-> label the new column E "State" (this automatically shifts Email and
-> everything after it one column over, matching the code). Old rows keep
-> whatever phone numbers were already collected — nothing is deleted —
-> they just won't line up with the new headers going forward, so you may
-> want to move that historical data to a separate "Archive" tab if you
-> want to keep it organized.
+> **If your live "Sign-Ups" tab currently has columns exactly matching
+> "Received At, First Name, Last Name, Email, Location/Event, Collected On
+> Device At" (six columns, no Country/State):** Country and State are back,
+> but added at the very **end** this time, so nothing needs to shift.
+> Before your next sync, just add two new header cells after "Collected On
+> Device At": type **"Country"** in the next empty column and **"State"**
+> in the one after that. Existing rows and columns are untouched — this
+> only adds two new ones for future sign-ups to fill in (or leave blank,
+> since both are optional).
+>
+> If your Sheet still has the older "Country"/"State" columns positioned
+> right after "Last Name" (from an even earlier version), delete those two
+> columns first, then add the fresh "Country" and "State" headers at the
+> end as described above.
 
 ### Keeping random people out of your Sheet
 

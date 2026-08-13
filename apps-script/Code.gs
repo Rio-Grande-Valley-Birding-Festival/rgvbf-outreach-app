@@ -58,11 +58,11 @@ function doPost(e) {
       new Date(),               // when the server received it
       data.firstName || "",
       data.lastName || "",
-      data.country || "",
-      data.state || "",
       data.email || "",
       data.eventLocation || "",
       data.createdAt || "",     // when it was actually collected on the device
+      data.country || "",       // optional -- may be blank
+      data.state || "",         // optional -- may be blank
     ]);
 
     return jsonResponse({ status: "ok" });
@@ -85,11 +85,11 @@ function getOrCreateSheet() {
       "Received At",
       "First Name",
       "Last Name",
-      "Country",
-      "State",
       "Email",
       "Location / Event",
       "Collected On Device At",
+      "Country",
+      "State",
     ]);
     sheet.setFrozenRows(1);
   }
