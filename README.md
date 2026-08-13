@@ -16,7 +16,9 @@ delays. Updating it is just updating files on GitHub.
 
 1. Before an event, someone sets up the device: opens the app and taps the
    **Change** link next to "Event:" near the top, and types in the event or
-   location name once (see "Setting the event before each event" below).
+   location name once, then does the same for **"Collected by:"** — their
+   own name, or a label for the device (see "Setting the event and
+   collector before each event" below).
 2. From then on, anyone — staff, volunteers, whoever's talking to people —
    can hand the phone/tablet around and just fill in **First name, Last
    name, Email**, then tap **Save sign-up**. Those three are required,
@@ -38,17 +40,28 @@ delays. Updating it is just updating files on GitHub.
 6. A short notice at the top of the app tells people their info is for
    RGVBF's internal records only and isn't shared or sold.
 
-### Setting the event before each event
+### Setting the event and collector before each event
 
-The Location/Event value isn't part of the sign-up form anymore — it's set
-once per device via the **"Event: ___ · Change"** line near the top, so
-whoever's collecting sign-ups doesn't see it or have to think about it at
-all. Tap **Change**, type the event/location name in the prompt that
-appears, and it's saved on that device and silently attached to every
-sign-up from then on — including the next time the app is opened, until
-someone changes it again. If it's never been set on a device, the app will
+Neither Location/Event nor "who collected this" are part of the sign-up
+form — both are set once per device via small **"Change"** links near the
+top, so whoever's actually collecting sign-ups doesn't see them or have to
+think about them at all:
+
+- **Event: ___ · Change** — the event/location name for every sign-up on
+  this device.
+- **Collected by: ___ · Change** — your name, or a label for the device
+  itself (e.g. "Table 2 iPad"), so you can tell later which staff member or
+  device brought in a given entry. There's no way for a website to see a
+  phone's actual device name or the owner's account name (browsers don't
+  expose that, for privacy reasons) — this is the practical stand-in: type
+  it in once, and it's attached automatically after that.
+
+Tap **Change** on either one, type the value into the prompt that appears,
+and it's saved on that device and silently attached to every sign-up from
+then on — including the next time the app is opened, until someone changes
+it again. If either one has never been set on a device, the app will
 refuse to save a sign-up and remind you to tap Change first, so entries
-never end up with a blank/unknown location.
+never end up with a blank/unknown location or collector.
 
 ### Managing what's stored on a device
 
@@ -214,6 +227,12 @@ device is online.
 > right after "Last Name" (from an even earlier version), delete those two
 > columns first, then add the fresh "Country" and "State" headers at the
 > end as described above.
+
+> **New: "Collected By" column.** Add one more header in the column right
+> after "State" — type **"Collected By"**. This records whatever name or
+> device label was set via the app's "Collected by · Change" link, so you
+> can tell who brought in each sign-up. Like Country/State, this is simply
+> added at the end, so nothing else needs to move.
 
 ### Keeping random people out of your Sheet
 

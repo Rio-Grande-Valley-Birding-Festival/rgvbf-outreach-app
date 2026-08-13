@@ -8,7 +8,7 @@
  * >>> SET THIS to the Web App URL you get after deploying the Apps Script
  *     from the apps-script/Code.gs file in this project (see README.md). <<<
  */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3pG5mxe-IfghuQ15IrOTcbjtqKfz6RuYUK94JKduQi6n1yTaUmr56Yw/exec";
+const APPS_SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 
 /**
  * >>> SET THIS to the SAME random string you put in SHARED_SECRET at the
@@ -16,9 +16,10 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3
  *     secret can write to the Sheet, so treat it like a lightweight API
  *     key: don't post it anywhere public outside this file. <<<
  */
-const APP_SHARED_SECRET = "e6PEquFDHUXu";
+const APP_SHARED_SECRET = "PASTE_YOUR_OWN_RANDOM_SECRET_HERE";
 
 const LAST_EVENT_KEY = "rgvbf_last_event_location";
+const COLLECTED_BY_KEY = "rgvbf_collected_by";
 
 const form = document.getElementById("contactForm");
 const fields = {
@@ -42,6 +43,8 @@ const clearSyncedBtn = document.getElementById("clearSyncedBtn");
 const clearAllBtn = document.getElementById("clearAllBtn");
 const eventNameDisplay = document.getElementById("eventNameDisplay");
 const changeEventBtn = document.getElementById("changeEventBtn");
+const collectedByDisplay = document.getElementById("collectedByDisplay");
+const changeCollectedByBtn = document.getElementById("changeCollectedByBtn");
 
 // ---------- Event / Location (admin-set, not part of the volunteer form) ----------
 // This used to be a field every volunteer filled in on every sign-up. Now
@@ -77,6 +80,44 @@ changeEventBtn.addEventListener("click", () => {
   }
   rememberEvent(next);
   showToast(`Now collecting for: ${currentEventLocation}`);
+});
+
+// ---------- Collected By (admin-set, not part of the volunteer form) ----------
+// Same pattern as Event/Location: there's no way for a website to see the
+// device's actual name or the phone's owner/account name (browsers don't
+// expose that, on purpose, for privacy reasons) -- so instead, whoever's
+// using a given phone/tablet sets their own name (or a device label like
+// "Table 2 iPad") once, and it's silently attached to every sign-up from
+// that device afterward. Required, like Event/Location, since knowing who
+// collected each entry is the whole point of adding this.
+let currentCollectedBy = "";
+
+function refreshCollectedByDisplay() {
+  collectedByDisplay.textContent = currentCollectedBy || "Not set — tap Change";
+}
+function loadLastCollectedBy() {
+  currentCollectedBy = (localStorage.getItem(COLLECTED_BY_KEY) || "").trim();
+  refreshCollectedByDisplay();
+}
+function rememberCollectedBy(value) {
+  currentCollectedBy = value.trim();
+  localStorage.setItem(COLLECTED_BY_KEY, currentCollectedBy);
+  refreshCollectedByDisplay();
+}
+loadLastCollectedBy();
+
+changeCollectedByBtn.addEventListener("click", () => {
+  const next = window.prompt(
+    "Your name or a label for this device (e.g. \"Maria\" or \"Table 2 iPad\"):",
+    currentCollectedBy
+  );
+  if (next === null) return; // cancelled
+  if (!next.trim()) {
+    showToast("Collected By can't be blank.");
+    return;
+  }
+  rememberCollectedBy(next);
+  showToast(`Now logging sign-ups as collected by: ${currentCollectedBy}`);
 });
 
 // ---------- country / state (both optional) ----------
@@ -186,6 +227,7 @@ function recordsToCsv(records) {
     "Collected On Device At",
     "Country",
     "State",
+    "Collected By",
     "Synced To Sheet",
     "Synced At",
   ];
@@ -197,6 +239,7 @@ function recordsToCsv(records) {
     r.createdAt,
     r.country || "",
     r.state || "",
+    r.collectedBy || "",
     r.synced ? "Yes" : "No",
     r.syncedAt || "",
   ]);
@@ -316,6 +359,11 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
+  if (!currentCollectedBy) {
+    showToast('Set "Collected by" first — tap "Change" above.');
+    return;
+  }
+
   if (!validateForm()) {
     showToast("Please fix the highlighted fields.");
     return;
@@ -330,6 +378,7 @@ form.addEventListener("submit", async (e) => {
     country: fields.country.value,
     state: currentStateValue(),
     eventLocation: currentEventLocation,
+    collectedBy: currentCollectedBy,
   };
 
   try {

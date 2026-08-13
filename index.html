@@ -64,7 +64,7 @@
     margin: 0 0 14px;
   }
 
-  #eventBar {
+  #eventBar, #collectedByBar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -77,8 +77,8 @@
     background: #fff;
     border: 1px solid #e0e4e0;
   }
-  #eventBar strong { font-weight: 700; color: var(--green); }
-  #eventBar button {
+  #eventBar strong, #collectedByBar strong { font-weight: 700; color: var(--green); }
+  #eventBar button, #collectedByBar button {
     background: #fff;
     color: var(--green);
     border: 1px solid var(--green);
@@ -270,6 +270,11 @@
   <div id="eventBar">
     <span>Event: <strong id="eventNameDisplay">&mdash;</strong></span>
     <button id="changeEventBtn" type="button">Change</button>
+  </div>
+
+  <div id="collectedByBar">
+    <span>Collected by: <strong id="collectedByDisplay">&mdash;</strong></span>
+    <button id="changeCollectedByBtn" type="button">Change</button>
   </div>
 
   <div class="card">
