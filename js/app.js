@@ -8,7 +8,7 @@
  * >>> SET THIS to the Web App URL you get after deploying the Apps Script
  *     from the apps-script/Code.gs file in this project (see README.md). <<<
  */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3pG5mxe-IfghuQ15IrOTcbjtqKfz6RuYUK94JKduQi6n1yTaUmr56Yw/exec";
+const APPS_SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 
 /**
  * >>> SET THIS to the SAME random string you put in SHARED_SECRET at the
@@ -16,7 +16,7 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3
  *     secret can write to the Sheet, so treat it like a lightweight API
  *     key: don't post it anywhere public outside this file. <<<
  */
-const APP_SHARED_SECRET = "e6PEquFDHUXu";
+const APP_SHARED_SECRET = "PASTE_YOUR_OWN_RANDOM_SECRET_HERE";
 
 const LAST_EVENT_KEY = "rgvbf_last_event_location";
 const COLLECTED_BY_KEY = "rgvbf_collected_by";
@@ -38,6 +38,7 @@ const pendingPill = document.getElementById("pendingPill");
 const toastEl = document.getElementById("toast");
 const submitBtn = document.getElementById("submitBtn");
 const dataSummaryEl = document.getElementById("dataSummary");
+const dataSummaryTopEl = document.getElementById("dataSummaryTop");
 const exportCsvBtn = document.getElementById("exportCsvBtn");
 const clearSyncedBtn = document.getElementById("clearSyncedBtn");
 const clearAllBtn = document.getElementById("clearAllBtn");
@@ -195,18 +196,28 @@ async function refreshPendingPill() {
   pendingPill.textContent = count;
 }
 
-// ---------- "stored on this device" summary ----------
+// ---------- "stored on this device" summary (shown both near the top and
+// again down by the Export/Clear tools) ----------
 async function refreshDataSummary() {
   const [total, pending] = await Promise.all([RgvbfDB.countAll(), RgvbfDB.countUnsynced()]);
   const synced = total - pending;
 
+  let fullText;
+  let topText;
   if (total === 0) {
-    dataSummaryEl.textContent = "No sign-ups stored on this device yet.";
+    fullText = "No sign-ups stored on this device yet.";
+    topText = "0 sign-ups stored on this device";
   } else {
-    dataSummaryEl.textContent =
+    fullText =
       `${total} sign-up${total === 1 ? "" : "s"} total — ` +
       `${synced} synced, ${pending} pending sync.`;
+    topText =
+      `${total} sign-up${total === 1 ? "" : "s"} stored on this device` +
+      (pending > 0 ? ` (${pending} pending sync)` : "");
   }
+
+  dataSummaryEl.textContent = fullText;
+  dataSummaryTopEl.textContent = topText;
 }
 
 // ---------- CSV export ----------
