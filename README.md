@@ -258,6 +258,119 @@ GitHub Pro (or another host that supports private static sites).
 
 ---
 
+## Part 5 — QR codes for magazines and print
+
+The volunteer app covers people you meet in person. QR codes cover people who
+find you in a magazine, on a flyer, or on a rack card — they scan, sign
+themselves up, and land in the **same Sheet, same columns**.
+
+The difference is where Location and Collected By come from. In the app, a
+volunteer sets them once per device. With a QR code, **the code itself decides
+them**: each printed code carries a short tag, and that tag maps to a placement
+name. Everyone who scans the magazine ad is recorded against that magazine,
+with `Collected By = QR Code`. Neither value is shown to the person scanning
+and neither can be edited by them.
+
+```
+Magazine ad  →  QR  →  …/qr/?src=rgv-vision-aug-2026
+                            ↓
+                   the "Stay Connected" page
+                   (Location = "Magazine – RGV Vision – Aug 2026",
+                    Collected By = "QR Code"  — both hidden)
+                            ↓
+                   the same Google Sheet
+```
+
+**The printed address never changes.** The QR points at your own site, and the
+site decides what that tag means. If you retire a magazine, retarget a code, or
+rebuild the whole page, you edit one config file — nothing gets reprinted.
+
+### One-time setup
+
+1. **Add the second secret.** In `Code.gs` you now have two:
+
+   ```js
+   const SHARED_SECRET    = "…";  // volunteer app, unchanged
+   const QR_SHARED_SECRET = "…";  // NEW — must be a different random string
+   ```
+
+   They must differ. The QR page is public and printed in magazines, so its
+   secret is the most exposed thing you have. Keeping it separate means that if
+   it's ever scraped and abused, you rotate that one string — printed codes keep
+   working, and the volunteer app and the phones running it are untouched.
+
+   Re-deploy after editing: **Deploy → Manage deployments → pencil → New
+   version → Deploy.** Changes don't take effect until you do.
+
+2. **Fill in `qr/js/qr-config.js`** — the same Web App URL the volunteer app
+   uses, plus the QR secret you just set.
+
+3. **List your placements** in the same file:
+
+   ```js
+   PLACEMENTS: {
+     "rgv-vision-aug-2026": "Magazine – RGV Vision – Aug 2026",
+   }
+   ```
+
+   Left side is the tag in the URL. Right side is written verbatim into the
+   Location column, so write it the way you want to read it in the Sheet.
+
+4. **Check it's live.** Open `https://YOUR-SITE/qr/?src=rgv-vision-aug-2026` in
+   a browser. If the config is still on placeholders the page says so and
+   refuses to accept sign-ups, rather than thanking people while saving nothing.
+
+### Generating the codes
+
+`tools/placements.csv` holds the same list in spreadsheet form. Then:
+
+```bash
+pip install qrcode pillow
+python3 tools/generate_qr.py --base-url https://YOUR-SITE/qr/
+```
+
+You get, in `tools/qr-codes/`, an `.svg` per placement (give this to the
+designer or print shop — it scales to any size without going fuzzy), a 300dpi
+`.png` with a caption underneath, and `index.csv` listing every code and its
+address.
+
+The script refuses to run if a slug in `placements.csv` is missing from
+`qr-config.js` — that mismatch is the one mistake that's expensive, because it
+only shows up as `Unmapped QR – …` rows after the magazine is already printed.
+
+### Adding a placement later
+
+1. Add a line to `PLACEMENTS` in `qr/js/qr-config.js`
+2. Add the matching row to `tools/placements.csv`
+3. Re-run `generate_qr.py`
+4. Commit and push
+
+About two minutes. No changes to the volunteer app, Code.gs, or the Sheet.
+
+### Before anything goes to a printer
+
+Scan the actual code, submit a junk entry, and confirm the row appears in the
+Sheet with the right Location and `Collected By = QR Code`. Then delete the test
+row. A code that's wrong on screen is a two-minute fix; a code that's wrong in
+40,000 copies of a magazine is not.
+
+### Naming placements
+
+Put the issue and month in the name — `Magazine – RGV Vision – Aug 2026`, not
+`RGV Vision`. When you're deciding next year's ad budget you'll want to know
+which *issue* pulled, not just which publication.
+
+### What this doesn't do
+
+The QR page is public, so anyone who reads its source can find the endpoint and
+the QR secret. A hidden honeypot field blocks ordinary bots, and duplicate
+submissions are de-duplicated server-side, but a determined person could still
+push junk rows tagged `QR Code`. If that ever happens: rotate
+`QR_SHARED_SECRET`, re-deploy, update `qr-config.js`, and delete the junk rows.
+Because it's tagged, it's easy to find and filter.
+
+---
+
 ## Updating the app later
 
 Because of the offline caching (the service worker), phones may keep
@@ -278,8 +391,8 @@ will refresh itself next time it's opened with a connection.
 
 ```
 rgvbf-outreach-app/
-├── index.html          The sign-up form (what people see)
-├── manifest.json        Makes it installable like an app
+├── index.html            The volunteer sign-up form (what staff see)
+├── manifest.json         Makes it installable like an app
 ├── service-worker.js     Makes it work with no internet
 ├── js/
 │   ├── db.js             Stores sign-ups on the device (IndexedDB)
@@ -289,8 +402,22 @@ rgvbf-outreach-app/
 ├── icons/                App icons, generated from the logo (home screen icon)
 ├── apps-script/
 │   └── Code.gs           Paste into Google Sheets → Apps Script
+├── qr/                   The public QR sign-up page (Part 5)
+│   ├── index.html        "Stay Connected" page people reach by scanning
+│   └── js/
+│       ├── qr-config.js  ← the only file you edit to add/change QR codes
+│       ├── qr-app.js     Form logic for the QR page
+│       └── geo.js        Country/state lists, copied from index.html
+├── tools/                Not part of the website — run locally
+│   ├── placements.csv    Your list of QR placements
+│   ├── generate_qr.py    Turns that list into print-ready QR files
+│   └── qr-codes/         Generated .svg / .png / index.csv
 └── README.md             This file
 ```
+
+> `qr/js/geo.js` holds a copy of the country and state lists from
+> `index.html`, so both forms offer identical choices and the Sheet gets
+> identical spellings. If you ever change one, change the other to match.
 
 ## Branding
 

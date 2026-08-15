@@ -12,7 +12,7 @@
  * Bump CACHE_NAME (e.g. to "rgvbf-outreach-v2") any time you change one of
  * these files and want devices to pick up the update.
  */
-const CACHE_NAME = "rgvbf-outreach-v14";
+const CACHE_NAME = "rgvbf-outreach-v12";
 
 const APP_SHELL = [
   "./",

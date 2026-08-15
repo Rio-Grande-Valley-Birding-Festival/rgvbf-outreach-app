@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Generated QR files are committed on purpose (see README Part 5) so the
+# print shop can pull them straight from the repo. If you'd rather keep them
+# out of version control, uncomment the next line.
+# tools/qr-codes/
