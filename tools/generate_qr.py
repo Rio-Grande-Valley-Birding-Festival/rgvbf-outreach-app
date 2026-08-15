@@ -36,8 +36,8 @@ import qrcode
 from qrcode.image.svg import SvgPathImage
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-# Set this once to your live QR page and you can drop the --base-url flag.
-DEFAULT_BASE_URL = "https://YOUR-USERNAME.github.io/rgvbf-outreach-app/qr/"
+# The live QR page. Change this if the site ever moves.
+DEFAULT_BASE_URL = "https://rio-grande-valley-birding-festival.github.io/rgvbf-outreach-app/qr/"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_DIR = os.path.join(HERE, "qr-codes")
@@ -237,11 +237,11 @@ def main() -> None:
 
     # Printing a code built from a placeholder address would mean reprinting
     # everything, so refuse rather than quietly produce dead codes.
-    if "YOUR-USERNAME" in args.base_url:
+    if "YOUR-USERNAME" in args.base_url or not args.base_url.startswith("http"):
         sys.exit(
             "Set --base-url to your live QR page address (or edit DEFAULT_BASE_URL\n"
-            "at the top of this script). Example:\n"
-            "  python3 tools/generate_qr.py --base-url https://rgvbf.github.io/rgvbf-outreach-app/qr/"
+            "at the top of this script). Current live address:\n"
+            "  https://rio-grande-valley-birding-festival.github.io/rgvbf-outreach-app/qr/"
         )
 
     os.makedirs(OUT_DIR, exist_ok=True)

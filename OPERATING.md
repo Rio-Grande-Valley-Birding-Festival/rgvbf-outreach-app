@@ -31,11 +31,11 @@ and doesn't expose.
 Once GitHub Pages is on, you have:
 
 ```
-Volunteer app   https://USERNAME.github.io/rgvbf-outreach-app/
-QR sign-up page https://USERNAME.github.io/rgvbf-outreach-app/qr/?src=SLUG
+Volunteer app   https://rio-grande-valley-birding-festival.github.io/rgvbf-outreach-app/
+QR sign-up page https://rio-grande-valley-birding-festival.github.io/rgvbf-outreach-app/qr/?src=SLUG
 ```
 
-`USERNAME` is your GitHub username. Both are permanent.
+Both are live and permanent.
 
 ---
 
@@ -63,8 +63,14 @@ Order matters — each step needs the one before it.
 
    ```
    pip install qrcode pillow
-   python3 tools/generate_qr.py --base-url https://USERNAME.github.io/rgvbf-outreach-app/qr/
+   python3 tools/generate_qr.py
    ```
+
+   The live address is already set as the default, so no extra flags needed.
+
+   **Print QR codes at 1.6 inches (4 cm) or larger.** The site address is
+   long, which makes a dense code; below that size they stop scanning
+   reliably on paper. See `tools/qr-codes/README.txt`.
 
 6. **Test before printing.** Scan a code, sign up with a fake name, confirm the
    row appears in the Sheet with the right Location and `Collected By = QR
