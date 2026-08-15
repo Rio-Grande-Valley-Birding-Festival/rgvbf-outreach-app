@@ -20,7 +20,7 @@ const QR_CONFIG = {
      Use the SAME Web App URL as the volunteer app (js/app.js) —
      both write to the same Sheet, same columns.
      --------------------------------------------------------------- */
-  APPS_SCRIPT_URL: "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3pG5mxe-IfghuQ15IrOTcbjtqKfz6RuYUK94JKduQi6n1yTaUmr56Yw/exec",
 
   /* ---------------------------------------------------------------
      2. The QR secret.
@@ -35,7 +35,7 @@ const QR_CONFIG = {
      string and every printed QR keeps working — without touching the
      volunteer app or the phones already using it.
      --------------------------------------------------------------- */
-  QR_SHARED_SECRET: "PASTE_A_DIFFERENT_RANDOM_SECRET_HERE",
+  QR_SHARED_SECRET: "eVRGquFDHUXu",
 
   /* ---------------------------------------------------------------
      3. What lands in the "Collected By" column for QR sign-ups.
