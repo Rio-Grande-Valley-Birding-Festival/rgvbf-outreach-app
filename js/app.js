@@ -8,7 +8,6 @@
  * >>> SET THIS to the Web App URL you get after deploying the Apps Script
  *     from the apps-script/Code.gs file in this project (see README.md). <<<
  */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3pG5mxe-IfghuQ15IrOTcbjtqKfz6RuYUK94JKduQi6n1yTaUmr56Yw/exec";
 
 /**
  * >>> SET THIS to the SAME random string you put in SHARED_SECRET at the
@@ -16,7 +15,6 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3
  *     secret can write to the Sheet, so treat it like a lightweight API
  *     key: don't post it anywhere public outside this file. <<<
  */
-const APP_SHARED_SECRET = "e6PEquFDHUXu";
 
 const LAST_EVENT_KEY = "rgvbf_last_event_location";
 const COLLECTED_BY_KEY = "rgvbf_collected_by";
