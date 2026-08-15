@@ -329,10 +329,26 @@ pip install qrcode pillow
 python3 tools/generate_qr.py --base-url https://YOUR-SITE/qr/
 ```
 
-You get, in `tools/qr-codes/`, an `.svg` per placement (give this to the
-designer or print shop — it scales to any size without going fuzzy), a 300dpi
-`.png` with a caption underneath, and `index.csv` listing every code and its
-address.
+You get, in `tools/qr-codes/`, four files per placement plus an `index.csv`
+listing every code and where it points:
+
+| File | Use it for |
+|---|---|
+| `<slug>.svg` | Black QR with the RGVBF logo in the middle. Give this to the designer or print shop — vector, sharp at any size. |
+| `<slug>.png` | The same at 300dpi with a caption underneath, for email and documents. |
+| `<slug>-plain.svg` | No logo, pure black. For single-colour printing, or codes too small for a logo to read. |
+| `<slug>-plain.png` | The same at 300dpi. |
+
+**About the logo in the middle.** QR codes carry redundant data so they still
+scan when partly obscured, and these use the highest redundancy setting. The
+logo covers about 8% of the code — comfortably inside what it can recover, with
+room left for the damage a real printed code picks up from ink spread, folds and
+glare.
+
+The script decodes every code it generates, both as drawn and after shrinking it
+by half and blurring it, and refuses to write one that fails either test. So a
+file that exists scanned on the bench. That still isn't glossy paper under bad
+light, so test one physical proof before a full print run.
 
 The script refuses to run if a slug in `placements.csv` is missing from
 `qr-config.js` — that mismatch is the one mistake that's expensive, because it

@@ -20,7 +20,7 @@ const QR_CONFIG = {
      Use the SAME Web App URL as the volunteer app (js/app.js) —
      both write to the same Sheet, same columns.
      --------------------------------------------------------------- */
-  APPS_SCRIPT_URL: "eVRGquFDHUXu",
+  APPS_SCRIPT_URL: "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
 
   /* ---------------------------------------------------------------
      2. The QR secret.

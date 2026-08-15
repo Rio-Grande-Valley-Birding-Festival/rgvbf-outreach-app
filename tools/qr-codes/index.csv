@@ -1,6 +1,6 @@
-slug,location_name,url,svg,png
-rgv-vision-aug-2026,Magazine – RGV Vision – Aug 2026,https://rgvbf.github.io/rgvbf-outreach-app/qr/?src=rgv-vision-aug-2026,qr-codes/rgv-vision-aug-2026.svg,qr-codes/rgv-vision-aug-2026.png
-texas-highways-2026,Magazine – Texas Highways – 2026,https://rgvbf.github.io/rgvbf-outreach-app/qr/?src=texas-highways-2026,qr-codes/texas-highways-2026.svg,qr-codes/texas-highways-2026.png
-birdwatching-fall-26,Magazine – BirdWatching – Fall 2026,https://rgvbf.github.io/rgvbf-outreach-app/qr/?src=birdwatching-fall-26,qr-codes/birdwatching-fall-26.svg,qr-codes/birdwatching-fall-26.png
-chamber-flyer,Flyer – Harlingen Chamber,https://rgvbf.github.io/rgvbf-outreach-app/qr/?src=chamber-flyer,qr-codes/chamber-flyer.svg,qr-codes/chamber-flyer.png
-visitor-center,Rack Card – Harlingen Visitor Center,https://rgvbf.github.io/rgvbf-outreach-app/qr/?src=visitor-center,qr-codes/visitor-center.svg,qr-codes/visitor-center.png
+slug,location_name,url,svg,png,svg-plain,png-plain
+rgv-vision-aug-2026,Magazine – RGV Vision – Aug 2026,https://rgvbf.github.io/rgvbf-outreach-app/qr/?src=rgv-vision-aug-2026,qr-codes/rgv-vision-aug-2026.svg,qr-codes/rgv-vision-aug-2026.png,qr-codes/rgv-vision-aug-2026-plain.svg,qr-codes/rgv-vision-aug-2026-plain.png
+texas-highways-2026,Magazine – Texas Highways – 2026,https://rgvbf.github.io/rgvbf-outreach-app/qr/?src=texas-highways-2026,qr-codes/texas-highways-2026.svg,qr-codes/texas-highways-2026.png,qr-codes/texas-highways-2026-plain.svg,qr-codes/texas-highways-2026-plain.png
+birdwatching-fall-26,Magazine – BirdWatching – Fall 2026,https://rgvbf.github.io/rgvbf-outreach-app/qr/?src=birdwatching-fall-26,qr-codes/birdwatching-fall-26.svg,qr-codes/birdwatching-fall-26.png,qr-codes/birdwatching-fall-26-plain.svg,qr-codes/birdwatching-fall-26-plain.png
+chamber-flyer,Flyer – Harlingen Chamber,https://rgvbf.github.io/rgvbf-outreach-app/qr/?src=chamber-flyer,qr-codes/chamber-flyer.svg,qr-codes/chamber-flyer.png,qr-codes/chamber-flyer-plain.svg,qr-codes/chamber-flyer-plain.png
+visitor-center,Rack Card – Harlingen Visitor Center,https://rgvbf.github.io/rgvbf-outreach-app/qr/?src=visitor-center,qr-codes/visitor-center.svg,qr-codes/visitor-center.png,qr-codes/visitor-center-plain.svg,qr-codes/visitor-center-plain.png
