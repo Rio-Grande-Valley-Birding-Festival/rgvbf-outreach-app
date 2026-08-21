@@ -54,15 +54,21 @@
 
   main { max-width: 480px; margin: 0 auto; padding: 16px; }
 
+  /* Deliberately larger than the other helper text on the page: this is the
+     reassurance people actually read before handing over their contact
+     info, so it needs to register at a glance rather than look like fine
+     print. */
   .privacy-notice {
-    font-size: 0.76rem;
-    line-height: 1.4;
+    font-size: 0.95rem;
+    line-height: 1.45;
     color: var(--danger);
-    font-weight: 600;
+    font-weight: 700;
     background: #fdecea;
+    border: 1px solid #f3c9c4;
     border-radius: 10px;
-    padding: 10px 12px;
+    padding: 14px 16px;
     margin: 0 0 14px;
+    text-align: center;
   }
 
   #eventBar, #collectedByBar {
@@ -78,6 +84,7 @@
     background: #fff;
     border: 1px solid #e0e4e0;
   }
+  #collectedByBar { margin-bottom: 0; }
   #eventBar strong, #collectedByBar strong { font-weight: 700; color: var(--green); }
   #eventBar button, #collectedByBar button {
     background: #fff;
@@ -225,6 +232,20 @@
     color: #333;
     margin: 0 0 14px;
   }
+  /* Only shown when Event / Collected by haven't been set on this device.
+     The setup controls live down in "Event setup" now, so without this the
+     first clue something's missing would be a failed Save. */
+  .setup-warning {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--danger);
+    background: #fdecea;
+    border: 1px solid #f3c9c4;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin: 0 0 14px;
+    text-align: center;
+  }
   .data-summary-top {
     font-size: 0.8rem;
     font-weight: 600;
@@ -281,15 +302,7 @@
 
   <p id="dataSummaryTop" class="data-summary-top">Loading&hellip;</p>
 
-  <div id="eventBar">
-    <span>Event: <strong id="eventNameDisplay">&mdash;</strong></span>
-    <button id="changeEventBtn" type="button">Change</button>
-  </div>
-
-  <div id="collectedByBar">
-    <span>Collected by: <strong id="collectedByDisplay">&mdash;</strong></span>
-    <button id="changeCollectedByBtn" type="button">Change</button>
-  </div>
+  <p id="setupWarning" class="setup-warning" style="display:none;"></p>
 
   <div class="card">
     <form id="contactForm" novalidate>
@@ -589,6 +602,24 @@
     Entries save to this device instantly, even with no signal. When this device has internet again,
     tap <strong>Sync now</strong> (or just wait &mdash; it syncs automatically) to send everything to the
     RGVBF Google Sheet.
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Event setup</h2>
+    <p class="hint" style="margin-top:-2px;">
+      Set these once on this device before an event &mdash; every sign-up saved
+      here is tagged with them automatically.
+    </p>
+
+    <div id="eventBar">
+      <span>Event: <strong id="eventNameDisplay">&mdash;</strong></span>
+      <button id="changeEventBtn" type="button">Change</button>
+    </div>
+
+    <div id="collectedByBar">
+      <span>Collected by: <strong id="collectedByDisplay">&mdash;</strong></span>
+      <button id="changeCollectedByBtn" type="button">Change</button>
+    </div>
   </div>
 
   <div class="card">

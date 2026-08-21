@@ -8,7 +8,7 @@
  * >>> SET THIS to the Web App URL you get after deploying the Apps Script
  *     from the apps-script/Code.gs file in this project (see README.md). <<<
  */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3pG5mxe-IfghuQ15IrOTcbjtqKfz6RuYUK94JKduQi6n1yTaUmr56Yw/exec";
+const APPS_SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 
 /**
  * >>> SET THIS to the SAME random string you put in SHARED_SECRET at the
@@ -16,7 +16,7 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkraAIb2dDuvs3
  *     secret can write to the Sheet, so treat it like a lightweight API
  *     key: don't post it anywhere public outside this file. <<<
  */
-const APP_SHARED_SECRET = "e6PEquFDHUXu";
+const APP_SHARED_SECRET = "PASTE_YOUR_OWN_RANDOM_SECRET_HERE";
 
 const LAST_EVENT_KEY = "rgvbf_last_event_location";
 const COLLECTED_BY_KEY = "rgvbf_collected_by";
@@ -39,6 +39,7 @@ const toastEl = document.getElementById("toast");
 const submitBtn = document.getElementById("submitBtn");
 const dataSummaryEl = document.getElementById("dataSummary");
 const dataSummaryTopEl = document.getElementById("dataSummaryTop");
+const setupWarningEl = document.getElementById("setupWarning");
 const exportCsvBtn = document.getElementById("exportCsvBtn");
 const clearSyncedBtn = document.getElementById("clearSyncedBtn");
 const clearAllBtn = document.getElementById("clearAllBtn");
@@ -66,6 +67,7 @@ function rememberEvent(value) {
   currentEventLocation = value.trim();
   localStorage.setItem(LAST_EVENT_KEY, currentEventLocation);
   refreshEventDisplay();
+  refreshSetupWarning();
 }
 loadLastEvent();
 
@@ -104,8 +106,32 @@ function rememberCollectedBy(value) {
   currentCollectedBy = value.trim();
   localStorage.setItem(COLLECTED_BY_KEY, currentCollectedBy);
   refreshCollectedByDisplay();
+  refreshSetupWarning();
 }
 loadLastCollectedBy();
+
+// ---------- "setup needed" banner ----------
+// The Event / Collected by controls now live in the "Event setup" card near
+// the bottom of the page, out of the volunteer's way. The downside is that
+// nothing up top would reveal an un-set device until someone tried to Save
+// and got rejected -- so show a banner near the form, but ONLY while
+// something is actually missing. Normal (fully set up) state shows nothing.
+function refreshSetupWarning() {
+  const missing = [];
+  if (!currentEventLocation) missing.push("Event");
+  if (!currentCollectedBy) missing.push("Collected by");
+
+  if (missing.length === 0) {
+    setupWarningEl.style.display = "none";
+    return;
+  }
+
+  setupWarningEl.textContent =
+    `Setup needed: ${missing.join(" and ")} not set — ` +
+    `scroll down to "Event setup" before collecting sign-ups.`;
+  setupWarningEl.style.display = "";
+}
+refreshSetupWarning();
 
 changeCollectedByBtn.addEventListener("click", () => {
   const next = window.prompt(
@@ -366,12 +392,12 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   if (!currentEventLocation) {
-    showToast('Set the Event/Location first — tap "Change" above.');
+    showToast('Set the Event first — see "Event setup" at the bottom of this page.');
     return;
   }
 
   if (!currentCollectedBy) {
-    showToast('Set "Collected by" first — tap "Change" above.');
+    showToast('Set "Collected by" first — see "Event setup" at the bottom of this page.');
     return;
   }
 
