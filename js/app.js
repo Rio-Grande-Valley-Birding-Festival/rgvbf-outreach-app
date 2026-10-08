@@ -43,79 +43,146 @@ const setupWarningEl = document.getElementById("setupWarning");
 const exportCsvBtn = document.getElementById("exportCsvBtn");
 const clearSyncedBtn = document.getElementById("clearSyncedBtn");
 const clearAllBtn = document.getElementById("clearAllBtn");
-const eventNameDisplay = document.getElementById("eventNameDisplay");
-const changeEventBtn = document.getElementById("changeEventBtn");
-const collectedByDisplay = document.getElementById("collectedByDisplay");
-const changeCollectedByBtn = document.getElementById("changeCollectedByBtn");
+const eventSelect = document.getElementById("eventSelect");
+const collectedBySelect = document.getElementById("collectedBySelect");
+const volunteerDisplay = document.getElementById("volunteerDisplay");
+const changeVolunteerBtn = document.getElementById("changeVolunteerBtn");
+
+const VOLUNTEER_KEY = "rgvbf_volunteer";
+
+// Fills a <select> with a blank first option plus the given values. The blank
+// is what makes "nothing picked yet" a real state rather than silently
+// defaulting to whatever happens to be first in the list.
+function fillSelect(sel, options, placeholder) {
+  sel.innerHTML = "";
+  const blank = document.createElement("option");
+  blank.value = "";
+  blank.textContent = placeholder;
+  sel.appendChild(blank);
+  options.forEach((value) => {
+    const opt = document.createElement("option");
+    opt.value = value;
+    opt.textContent = value;
+    sel.appendChild(opt);
+  });
+}
 
 // ---------- Event / Location (admin-set, not part of the volunteer form) ----------
-// This used to be a field every volunteer filled in on every sign-up. Now
-// it's set once by whoever's setting up the device before an event, via the
-// small "Change" link, and every sign-up on this device silently uses that
-// same value until someone changes it again -- one less thing to type (or
-// get wrong) per person signed up.
+// Set once on this device before an event; every sign-up saved here is tagged
+// with it until someone changes it. It is a dropdown rather than a text box
+// because the value goes straight into Cvent's "Outreach Source" field, which
+// accepts only its own options -- so a typo would not be a cosmetic problem,
+// it would lose the source on every sign-up collected that day.
 let currentEventLocation = "";
 
 function refreshEventDisplay() {
-  eventNameDisplay.textContent = currentEventLocation || "Not set — tap Change";
+  eventSelect.value = currentEventLocation;
 }
 function loadLastEvent() {
-  currentEventLocation = (localStorage.getItem(LAST_EVENT_KEY) || "").trim();
+  const saved = (localStorage.getItem(LAST_EVENT_KEY) || "").trim();
+  // A value saved back when this was a text box -- "Southeast Arizona Birding
+  // Festival - 2026" -- is not a valid Cvent option, so it is treated as unset
+  // instead of being carried forward. The setup banner then asks for a pick.
+  currentEventLocation = EVENT_OPTIONS.indexOf(saved) !== -1 ? saved : "";
   refreshEventDisplay();
 }
 function rememberEvent(value) {
-  currentEventLocation = value.trim();
+  currentEventLocation = value;
   localStorage.setItem(LAST_EVENT_KEY, currentEventLocation);
   refreshEventDisplay();
   refreshSetupWarning();
 }
+
+fillSelect(eventSelect, EVENT_OPTIONS, "Select an event…");
 loadLastEvent();
 
-changeEventBtn.addEventListener("click", () => {
-  const next = window.prompt(
-    "Event / Location name for sign-ups collected on this device:",
-    currentEventLocation
-  );
-  if (next === null) return; // cancelled
-  if (!next.trim()) {
-    showToast("Event/Location can't be blank.");
-    return;
+eventSelect.addEventListener("change", () => {
+  rememberEvent(eventSelect.value);
+  if (currentEventLocation) {
+    showToast(`Now collecting for: ${currentEventLocation}`);
   }
-  rememberEvent(next);
-  showToast(`Now collecting for: ${currentEventLocation}`);
 });
 
-// ---------- Collected By (admin-set, not part of the volunteer form) ----------
-// Same pattern as Event/Location: there's no way for a website to see the
-// device's actual name or the phone's owner/account name (browsers don't
-// expose that, on purpose, for privacy reasons) -- so instead, whoever's
-// using a given phone/tablet sets their own name (or a device label like
-// "Table 2 iPad") once, and it's silently attached to every sign-up from
-// that device afterward. Required, like Event/Location, since knowing who
-// collected each entry is the whole point of adding this.
+// ---------- Collected by (admin-set, not part of the volunteer form) ----------
+// How the sign-up was captured: Tablet, Phone or QR Code. Goes to Cvent's
+// Designation field. This used to hold a person's name; that moved to the
+// optional Volunteer setting below, which never leaves the spreadsheet.
 let currentCollectedBy = "";
 
 function refreshCollectedByDisplay() {
-  collectedByDisplay.textContent = currentCollectedBy || "Not set — tap Change";
+  collectedBySelect.value = currentCollectedBy;
 }
 function loadLastCollectedBy() {
-  currentCollectedBy = (localStorage.getItem(COLLECTED_BY_KEY) || "").trim();
+  const saved = (localStorage.getItem(COLLECTED_BY_KEY) || "").trim();
+  const mapped = LEGACY_COLLECTED_BY[saved.toLowerCase()] || saved;
+  currentCollectedBy = COLLECTED_BY_OPTIONS.indexOf(mapped) !== -1 ? mapped : "";
+  // Quietly upgrade a recognised old value ("Outreach Tablet" -> "Tablet") so
+  // the device does not have to be set up again for no reason.
+  if (currentCollectedBy && currentCollectedBy !== saved) {
+    localStorage.setItem(COLLECTED_BY_KEY, currentCollectedBy);
+  }
   refreshCollectedByDisplay();
 }
 function rememberCollectedBy(value) {
-  currentCollectedBy = value.trim();
+  currentCollectedBy = value;
   localStorage.setItem(COLLECTED_BY_KEY, currentCollectedBy);
   refreshCollectedByDisplay();
   refreshSetupWarning();
 }
+
+fillSelect(collectedBySelect, COLLECTED_BY_OPTIONS, "Select how…");
 loadLastCollectedBy();
 
+collectedBySelect.addEventListener("change", () => {
+  rememberCollectedBy(collectedBySelect.value);
+  if (currentCollectedBy) {
+    showToast(`Now logging sign-ups as: ${currentCollectedBy}`);
+  }
+});
+
+// ---------- Volunteer (admin-set, OPTIONAL) ----------
+// Who is working this table. Free text, because it is a name and because a
+// fixed list would need editing before every event. It rides along to the
+// spreadsheet in its own column and is never sent to Cvent, so a misspelling
+// costs nothing. Leaving it blank is a normal, supported state -- it is not
+// part of the setup warning.
+let currentVolunteer = "";
+
+function refreshVolunteerDisplay() {
+  volunteerDisplay.textContent = currentVolunteer || "Not set (optional)";
+}
+function loadVolunteer() {
+  currentVolunteer = (localStorage.getItem(VOLUNTEER_KEY) || "").trim();
+  refreshVolunteerDisplay();
+}
+function rememberVolunteer(value) {
+  currentVolunteer = value.trim();
+  localStorage.setItem(VOLUNTEER_KEY, currentVolunteer);
+  refreshVolunteerDisplay();
+}
+loadVolunteer();
+
+changeVolunteerBtn.addEventListener("click", () => {
+  const next = window.prompt(
+    "Your name, so we know who collected these sign-ups (optional — leave blank to clear):",
+    currentVolunteer
+  );
+  if (next === null) return; // cancelled
+  rememberVolunteer(next);
+  showToast(
+    currentVolunteer
+      ? `Sign-ups will be logged as collected by ${currentVolunteer}.`
+      : "Volunteer name cleared."
+  );
+});
+
 // ---------- "setup needed" banner ----------
-// The Event / Collected by controls now live in the "Event setup" card near
-// the bottom of the page, out of the volunteer's way. The downside is that
+// The Event / Collected by controls live in the "Event setup" card near the
+// bottom of the page, out of the volunteer's way. The downside is that
 // nothing up top would reveal an un-set device until someone tried to Save
 // and got rejected -- so show a banner near the form, but ONLY while
 // something is actually missing. Normal (fully set up) state shows nothing.
+// Volunteer is optional and deliberately absent from this check.
 function refreshSetupWarning() {
   const missing = [];
   if (!currentEventLocation) missing.push("Event");
@@ -132,20 +199,6 @@ function refreshSetupWarning() {
   setupWarningEl.style.display = "";
 }
 refreshSetupWarning();
-
-changeCollectedByBtn.addEventListener("click", () => {
-  const next = window.prompt(
-    "Your name or a label for this device (e.g. \"Maria\" or \"Table 2 iPad\"):",
-    currentCollectedBy
-  );
-  if (next === null) return; // cancelled
-  if (!next.trim()) {
-    showToast("Collected By can't be blank.");
-    return;
-  }
-  rememberCollectedBy(next);
-  showToast(`Now logging sign-ups as collected by: ${currentCollectedBy}`);
-});
 
 // ---------- country / state (both optional) ----------
 // The State dropdown only makes sense for US (or unspecified) addresses.
@@ -416,6 +469,7 @@ form.addEventListener("submit", async (e) => {
     state: currentStateValue(),
     eventLocation: currentEventLocation,
     collectedBy: currentCollectedBy,
+    volunteer: currentVolunteer,
   };
 
   try {
