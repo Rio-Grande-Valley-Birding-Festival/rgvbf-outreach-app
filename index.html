@@ -612,14 +612,23 @@
     </p>
 
     <div id="eventBar">
-      <span>Event: <strong id="eventNameDisplay">&mdash;</strong></span>
-      <button id="changeEventBtn" type="button">Change</button>
+      <label for="eventSelect" style="display:block;margin-bottom:4px;">Event</label>
+      <select id="eventSelect" name="eventSelect"></select>
     </div>
 
     <div id="collectedByBar">
-      <span>Collected by: <strong id="collectedByDisplay">&mdash;</strong></span>
-      <button id="changeCollectedByBtn" type="button">Change</button>
+      <label for="collectedBySelect" style="display:block;margin-bottom:4px;">Collected by</label>
+      <select id="collectedBySelect" name="collectedBySelect"></select>
     </div>
+
+    <div id="volunteerBar">
+      <span>Volunteer: <strong id="volunteerDisplay">&mdash;</strong></span>
+      <button id="changeVolunteerBtn" type="button">Change</button>
+    </div>
+    <p class="hint" style="margin-top:-2px;">
+      Optional. Your name, so we know who collected these sign-ups. It stays on
+      the spreadsheet and is never sent to Cvent.
+    </p>
   </div>
 
   <div class="card">
@@ -654,6 +663,7 @@
 <div id="toast"></div>
 
 <script src="js/db.js"></script>
-<script src="js/app.js"></script>
+<script src="js/options.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
