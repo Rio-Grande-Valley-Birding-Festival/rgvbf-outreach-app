@@ -12,7 +12,7 @@
  * Bump CACHE_NAME (e.g. to "rgvbf-outreach-v2") any time you change one of
  * these files and want devices to pick up the update.
  */
-const CACHE_NAME = "rgvbf-outreach-v21";
+const CACHE_NAME = "rgvbf-outreach-v22";
 
 const APP_SHELL = [
   "./",
@@ -20,6 +20,7 @@ const APP_SHELL = [
   "./manifest.json",
   "./js/app.js",
   "./js/db.js",
+  "./js/options.js",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./assets/rgvbf-logo.png",
